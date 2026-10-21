@@ -8,7 +8,7 @@ Node.js **24.5 이상**이 필요합니다. 외부 npm 패키지, 빌드, CDN �
 
 ```sh
 cd /workspace/sungnamhigh_hanul
-cp .env.example .env
+if [ ! -e .env ]; then cp .env.example .env; fi
 chmod 600 .env
 ```
 
