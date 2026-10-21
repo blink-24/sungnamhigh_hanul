@@ -1,758 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한울 신문 부스 - 독자 피드백 & 데이터 분석</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        hanul: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Canvas Confetti for Celebration -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Pretendard', sans-serif; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#a44624">
+  <title>한울 | 한 장의 이야기, 당신의 한 줄</title>
+  <link rel="icon" href="/assets/hanul-logo.webp" type="image/webp">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="한울 처음으로">
+        <img class="brand-logo" src="/assets/hanul-logo.webp" alt="감나무 가지와 주황빛 감으로 그린 한울 로고" width="76" height="76">
+        <span><span class="brand-kicker">성남고등학교 신문 동아리</span><strong>한울<span class="year">2026</span></strong></span>
+      </a>
+      <div class="header-actions">
+        <span class="festival-label">독자와 함께 여무는 이야기</span>
+        <button class="icon-button" id="adminOpen" type="button" aria-label="관리자 공간 열기" title="관리자 공간">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9.5 3-.7 2.3-2 .9-2.2-.6-2 3.5 1.7 1.7v2.4l-1.7 1.7 2 3.5 2.2-.6 2 .9.7 2.3h4l.7-2.3 2-.9 2.2.6 2-3.5-1.7-1.7v-2.4l1.7-1.7-2-3.5-2.2.6-2-.9-.7-2.3z"/><circle cx="11.5" cy="12" r="3.3"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <main id="main" class="page-shell">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="small-leaf" aria-hidden="true"></span> HANUL · FESTIVAL EDITION</span>
+        <h1 id="heroTitle">한 장의 이야기,<br>당신의 <em>한 줄.</em></h1>
+        <p>우리가 쓴 기사에 당신의 생각을 더해 주세요.<br>작은 관심이 모여 한울의 다음 이야기가 됩니다.</p>
+        <a class="button primary" href="#articles">기사 읽고 의견 남기기 <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><img src="/assets/hanul-logo.webp" alt="" width="290" height="290"><span class="art-note">생각이 익어가는 계절, 한울</span></div>
+      <div class="hero-bottom"><span>2026 동아리 축제 · 한울 신문 부스</span><span>읽고, 나누고, 함께 자라요.</span></div>
+    </section>
 
-    <!-- Header with Navigation Tabs -->
-    <header class="bg-gradient-to-r from-hanul-900 via-hanul-800 to-teal-900 text-white shadow-xl sticky top-0 z-40">
-        <div class="max-w-4xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-white/10 p-2.5 rounded-2xl border border-white/20 shadow-inner">
-                        <i class="fa-solid fa-newspaper text-2xl text-teal-300"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-black text-lg leading-tight tracking-tight flex items-center gap-2">
-                            한울 신문 <span class="text-[10px] bg-teal-400/20 text-teal-200 border border-teal-300/30 px-2 py-0.5 rounded-full font-semibold">축제 부스</span>
-                        </h1>
-                        <p class="text-xs text-teal-200/80">2026 동아리 축제 독자 피드백 웹앱</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab Navigation Buttons -->
-            <nav class="flex bg-black/20 p-1 rounded-xl border border-white/10 text-xs w-full sm:w-auto justify-center">
-                <button onclick="switchTab('formView')" id="tab-formView" class="tab-btn px-3.5 py-1.5 rounded-lg font-bold text-white bg-hanul-600 shadow transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-pen-to-square"></i> 피드백 작성
-                </button>
-                <button onclick="switchTab('dashboardView')" id="tab-dashboardView" class="tab-btn px-3.5 py-1.5 rounded-lg font-medium text-teal-100 hover:text-white transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-chart-pie"></i> 실시간 대시보드
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="max-w-4xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
-
-        <!-- Hero Notice Banner -->
-        <div class="bg-gradient-to-r from-teal-500 to-hanul-700 text-white rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="space-y-1 text-center sm:text-left z-10">
-                <span class="bg-amber-400 text-slate-900 font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">부스 참여 이벤트</span>
-                <h2 class="text-base sm:text-lg font-bold">기사를 읽고 한 줄 평을 남겨주시면 상품을 드립니다! 🎁</h2>
-                <p class="text-xs text-teal-100">재학생 & 외부 방문객 모두 참여 가능! 제출 화면을 부스 부원에게 보여주세요.</p>
-            </div>
-            <button onclick="scrollToForm()" class="bg-white text-hanul-800 hover:bg-amber-300 hover:text-slate-900 font-extrabold px-4 py-2.5 rounded-xl text-xs shadow-md transition transform active:scale-95 shrink-0 z-10">
-                피드백 작성하기 <i class="fa-solid fa-arrow-down ml-1"></i>
-            </button>
-        </div>
-
-        <!-- Featured Articles Showcase Section -->
-        <section class="space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-book-open text-hanul-600"></i> 한울 2026 축제 특별 기사 목록
-                </h3>
-                <span class="text-[11px] text-slate-500">기사를 클릭하면 요약본을 읽을 수 있습니다</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="articleCardsContainer">
-                <!-- Article cards dynamic rendering -->
-            </div>
-        </section>
-
-        <!-- VIEW 1: FEEDBACK FORM -->
-        <section id="formView" class="space-y-6">
-            <form id="feedbackForm" onsubmit="handleFormSubmit(event)" class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/80 shadow-md space-y-6">
-                
-                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800">독자 피드백 평가하기</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">솔직한 의견은 더 좋은 기사를 쓰는 데 큰 힘이 됩니다.</p>
-                    </div>
-                    <span class="text-xs text-rose-500 font-medium">* 필수항목</span>
-                </div>
-
-                <!-- 1. Affiliation (소속) -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">
-                        1. 방문자 소속 <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                        <label class="affiliation-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="affiliation" value="재학생" required class="sr-only">
-                            <i class="fa-solid fa-user-graduate text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">재학생</span>
-                        </label>
-                        <label class="affiliation-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="affiliation" value="외부 학생" class="sr-only">
-                            <i class="fa-solid fa-school text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">외부 학생</span>
-                        </label>
-                        <label class="affiliation-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="affiliation" value="학부모/주민" class="sr-only">
-                            <i class="fa-solid fa-users text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">학부모 / 주민</span>
-                        </label>
-                        <label class="affiliation-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="affiliation" value="교직원" class="sr-only">
-                            <i class="fa-solid fa-chalkboard-user text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">교직원</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 2. Gender (성별) -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">
-                        2. 성별 <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <label class="gender-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="gender" value="남성" required class="sr-only">
-                            <i class="fa-solid fa-mars text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">남성</span>
-                        </label>
-                        <label class="gender-option border border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-hanul-500 transition relative bg-slate-50/50">
-                            <input type="radio" name="gender" value="여성" class="sr-only">
-                            <i class="fa-solid fa-venus text-lg mb-1 block text-slate-500"></i>
-                            <span class="text-xs font-medium text-slate-700 block">여성</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 3. Selected Article -->
-                <div class="space-y-2">
-                    <label for="selectedArticle" class="block text-sm font-semibold text-slate-700">
-                        3. 평가할 기사 선택 <span class="text-rose-500">*</span>
-                    </label>
-                    <select id="selectedArticle" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-hanul-500 text-sm bg-white font-medium text-slate-700">
-                        <option value="" disabled selected>평가하실 기사를 선택해주세요</option>
-                    </select>
-                </div>
-
-                <!-- 4. Star Rating -->
-                <div class="space-y-2">
-                    <label class="block text-sm font-semibold text-slate-700">
-                        4. 기사 평점 <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="flex flex-col sm:flex-row items-center gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                        <div class="star-rating text-3xl text-slate-300 flex gap-2 cursor-pointer" id="starContainer">
-                            <i class="fa-solid fa-star transition hover:scale-110" data-rating="1"></i>
-                            <i class="fa-solid fa-star transition hover:scale-110" data-rating="2"></i>
-                            <i class="fa-solid fa-star transition hover:scale-110" data-rating="3"></i>
-                            <i class="fa-solid fa-star transition hover:scale-110" data-rating="4"></i>
-                            <i class="fa-solid fa-star transition hover:scale-110" data-rating="5"></i>
-                        </div>
-                        <span id="ratingText" class="text-xs font-bold text-slate-600">별점을 선택하세요 (5점 만점)</span>
-                        <input type="hidden" id="ratingValue" name="rating" required value="0">
-                    </div>
-                </div>
-
-                <!-- 5. One Line Review -->
-                <div class="space-y-2">
-                    <label for="oneLineReview" class="block text-sm font-semibold text-slate-700">
-                        5. 한 줄 평 및 독자 소감 <span class="text-rose-500">*</span>
-                    </label>
-                    <textarea id="oneLineReview" rows="3" required placeholder="기사를 읽고 인상 깊었던 부분이나 한울 동아리에 전달하고 싶은 한 마디를 적어주세요!" 
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-hanul-500 text-sm leading-relaxed"></textarea>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="w-full bg-gradient-to-r from-hanul-600 to-teal-600 hover:from-hanul-700 hover:to-teal-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>소감 제출하고 상품 받기</span>
-                </button>
-            </form>
-        </section>
-
-        <!-- VIEW 2: REAL-TIME ANALYTICS DASHBOARD -->
-        <section id="dashboardView" class="hidden space-y-6">
-            
-            <!-- Key Metric Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-xs font-semibold text-slate-400 block">총 응답 수</span>
-                    <p id="metricTotalCount" class="text-2xl font-black text-hanul-800">0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-xs font-semibold text-slate-400 block">평균 평점</span>
-                    <p id="metricAvgRating" class="text-2xl font-black text-amber-500">0.0 ★</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-xs font-semibold text-slate-400 block">외부인 참여 비율</span>
-                    <p id="metricExternalRatio" class="text-2xl font-black text-teal-600">0%</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-xs font-semibold text-slate-400 block">인기 기사 1위</span>
-                    <p id="metricTopArticle" class="text-xs font-bold text-slate-800 truncate mt-1">-</p>
-                </div>
-            </div>
-
-            <!-- Charts Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-column text-hanul-600"></i> 기사별 선호도 (응답 수)
-                    </h3>
-                    <div class="h-48">
-                        <canvas id="articleChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-pie text-teal-600"></i> 방문자 소속 구성 비율
-                    </h3>
-                    <div class="h-48">
-                        <canvas id="visitorChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Feedback Data Table -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-slate-600"></i> 실시간 수집 데이터 목록
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <button onclick="generateLifeRecordSummary()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs transition border border-indigo-200 flex items-center gap-1">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> 생기부 문구 생성
-                        </button>
-                        <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-1">
-                            <i class="fa-solid fa-file-excel"></i> CSV 다운로드
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
-                            <tr>
-                                <th class="p-2.5">시간</th>
-                                <th class="p-2.5">소속</th>
-                                <th class="p-2.5">성별</th>
-                                <th class="p-2.5">선택 기사</th>
-                                <th class="p-2.5">평점</th>
-                                <th class="p-2.5">한 줄 평</th>
-                            </tr>
-                        </thead>
-                        <tbody id="feedbackTableBody" class="divide-y divide-slate-100">
-                            <!-- Dynamic rows -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Article Reading Modal -->
-    <div id="articleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
-            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
-                <div>
-                    <span id="modalArticleCategory" class="text-[10px] bg-hanul-100 text-hanul-800 font-bold px-2 py-0.5 rounded-full">카테고리</span>
-                    <h3 id="modalArticleTitle" class="text-base font-bold text-slate-800 mt-1">기사 제목</h3>
-                </div>
-                <button onclick="closeArticleModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <p id="modalArticleContent" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">기사 본문 내용</p>
-            <div class="pt-3 border-t border-slate-100 flex justify-end">
-                <button onclick="selectArticleFromModal()" class="bg-hanul-600 hover:bg-hanul-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
-                    이 기사 평가하러 가기
-                </button>
-            </div>
-        </div>
+    <div class="tab-bar" role="tablist" aria-label="참여 메뉴">
+      <button id="tab-form" class="tab active" type="button" role="tab" aria-controls="formPanel" aria-selected="true">✎ <span>피드백 작성</span></button>
+      <button id="tab-dashboard" class="tab" type="button" role="tab" aria-controls="dashboardPanel" aria-selected="false" tabindex="-1">▥ <span>실시간 대시보드</span></button>
+      <span class="tab-note">당신의 생각을 기다립니다</span>
     </div>
 
-    <!-- Ticket Reward Modal -->
-    <div id="ticketModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 border border-slate-100 relative overflow-hidden">
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-                <i class="fa-solid fa-gift"></i>
-            </div>
-            <div class="space-y-1">
-                <h3 class="text-lg font-black text-slate-800">제출이 완료되었습니다!</h3>
-                <p class="text-xs text-slate-500">아래 확인 번호를 부스 운영 도우미에게 보여주시고 상품을 수령하세요.</p>
-            </div>
+    <section id="formPanel" role="tabpanel" aria-labelledby="tab-form">
+      <section id="articles" class="articles-section" aria-labelledby="articlesTitle">
+        <div class="section-heading"><div><span class="eyebrow">OUR STORIES</span><h2 id="articlesTitle">한울 2026 축제 특별 기사 목록</h2></div><span class="muted tiny" id="articleCount">기사를 불러오는 중</span></div>
+        <div id="articleCards" class="article-grid" aria-live="polite"><p class="empty-state">한울의 이야기를 불러오고 있습니다.</p></div>
+      </section>
+      <section class="feedback-section" aria-labelledby="feedbackTitle">
+        <div class="form-intro"><span class="eyebrow">YOUR VOICE</span><h2 id="feedbackTitle">읽은 마음을<br> 들려주세요.</h2><p>솔직한 한 줄이<br> 다음 신문을 더 풍성하게 만듭니다.</p><div class="gift-note"><span aria-hidden="true">✧</span><span>의견을 남기고 제출 확인 화면을<br>부스 도우미에게 보여주세요.</span></div></div>
+        <form id="feedbackForm" class="form-card">
+          <div class="form-card-heading"><h3>독자 피드백</h3><span class="tiny muted">모든 항목은 필수입니다</span></div>
+          <fieldset><legend><span class="step">01</span> 방문자 소속</legend><div class="choice-grid affiliations">
+            <label class="choice"><input type="radio" name="affiliation" value="재학생" required><span>재학생</span></label>
+            <label class="choice"><input type="radio" name="affiliation" value="외부 학생"><span>외부 학생</span></label>
+            <label class="choice"><input type="radio" name="affiliation" value="학부모/주민"><span>학부모 / 주민</span></label>
+            <label class="choice"><input type="radio" name="affiliation" value="교직원"><span>교직원</span></label>
+          </div></fieldset>
+          <fieldset><legend><span class="step">02</span> 성별</legend><div class="choice-grid two">
+            <label class="choice"><input type="radio" name="gender" value="남성" required><span>남성</span></label>
+            <label class="choice"><input type="radio" name="gender" value="여성"><span>여성</span></label>
+          </div></fieldset>
+          <div class="field"><label for="selectedArticle"><span class="step">03</span> 평가할 기사</label><select id="selectedArticle" name="articleId" required><option value="">기사를 선택해 주세요</option></select></div>
+          <fieldset><legend><span class="step">04</span> 기사 평점</legend><div class="rating-row"><div class="stars" aria-label="별점 선택">
+            <label><input type="radio" name="rating" value="1" required aria-label="1점"><span aria-hidden="true">★</span></label><label><input type="radio" name="rating" value="2" aria-label="2점"><span aria-hidden="true">★</span></label><label><input type="radio" name="rating" value="3" aria-label="3점"><span aria-hidden="true">★</span></label><label><input type="radio" name="rating" value="4" aria-label="4점"><span aria-hidden="true">★</span></label><label><input type="radio" name="rating" value="5" aria-label="5점"><span aria-hidden="true">★</span></label>
+          </div><span id="ratingHint" class="tiny muted">별점을 선택해 주세요</span></div></fieldset>
+          <div class="field"><label for="review"><span class="step">05</span> 한 줄 평 및 독자 소감</label><textarea id="review" name="review" rows="4" minlength="1" maxlength="1000" required placeholder="인상 깊었던 문장, 새롭게 알게 된 생각, 한울에게 전하고 싶은 말…"></textarea><span class="tiny muted">개인 연락처 등 개인정보는 적지 말아 주세요.</span></div>
+          <p id="submitStatus" class="status" role="status" aria-live="polite"></p>
+          <button id="submitButton" class="button primary wide" type="submit">소감 제출하고 상품 받기 <span aria-hidden="true">→</span></button>
+          <p class="form-footnote">시트 저장이 확인되면 제출 확인 번호가 발급됩니다.</p>
+        </form>
+      </section>
+    </section>
 
-            <!-- Ticket Code Box -->
-            <div class="bg-slate-900 text-white p-4 rounded-2xl space-y-1 relative overflow-hidden shadow-md">
-                <span class="text-[10px] text-teal-400 font-mono tracking-widest block">AUTHENTICATION CODE</span>
-                <p id="modalTicketCode" class="text-2xl font-black text-amber-400 font-mono tracking-wider">#HN-2026-X99</p>
-                <div class="text-[11px] text-slate-400 flex justify-between pt-2 border-t border-slate-800 mt-2">
-                    <span id="modalAffiliation">소속: 재학생</span>
-                    <span id="modalGender">성별: 남성</span>
-                </div>
-            </div>
+    <section id="dashboardPanel" role="tabpanel" aria-labelledby="tab-dashboard" hidden>
+      <div class="section-heading dashboard-heading"><div><span class="eyebrow">GROWING TOGETHER</span><h2>우리의 생각이 모이는 곳</h2><p class="muted">연동된 구글 시트의 실제 응답만 집계합니다.</p></div><button id="refreshDashboard" class="button secondary small" type="button">↻ 새로고침</button></div>
+      <p id="dashboardStatus" class="status" role="status" aria-live="polite">구글 시트 연결을 확인하고 있습니다.</p>
+      <div class="metrics">
+        <article class="metric"><span>총 응답 수</span><strong id="metricTotal">—</strong><small>함께 남겨 준 목소리</small></article>
+        <article class="metric"><span>평균 평점</span><strong id="metricAverage">—</strong><small>5점 만점</small></article>
+        <article class="metric"><span>외부인 참여 비율</span><strong id="metricExternal">—</strong><small>재학생 외 방문자</small></article>
+        <article class="metric top-article"><span>가장 많이 읽은 기사</span><strong id="metricTop">—</strong><small>응답 수 기준</small></article>
+      </div>
+      <div class="chart-grid"><article class="chart-card"><span class="eyebrow">STORY BY STORY</span><h3>기사별 선호도</h3><p class="tiny muted">기사별 응답 수 · 구글 시트 기준</p><div id="articleChart" class="bar-chart"></div></article><article class="chart-card"><span class="eyebrow">OUR READERS</span><h3>방문자 소속 구성</h3><p class="tiny muted">한울을 찾아 주신 분들</p><div id="visitorChart" class="bar-chart"></div></article></div>
+      <p class="dashboard-footnote">대시보드는 화면을 보고 있는 동안 약 30초 간격으로 갱신됩니다.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><span class="footer-brand">한울<span>2026</span></span><p>한 사람의 생각이 모여, 우리 모두의 이야기가 됩니다.</p><span class="tiny">성남고등학교 신문 동아리 · 축제 특별호</span></footer>
 
-            <div class="bg-amber-50 rounded-xl p-3 border border-amber-200 text-left space-y-1">
-                <p class="text-[11px] font-bold text-amber-900 flex items-center gap-1">
-                    <i class="fa-solid fa-circle-info text-amber-600"></i> 부스 안내사항
-                </p>
-                <p class="text-[10px] text-amber-800">화면을 닫거나 새로고침하면 다시 확인이 어려울 수 있으니 지금 도우미에게 제시해 주세요!</p>
-            </div>
-
-            <button onclick="closeTicketModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                확인 및 모달 닫기
-            </button>
-        </div>
-    </div>
-
-    <script>
-        // Articles Data
-        const articles = [
-            {
-                id: 1,
-                title: "인공지능과 미래 학교: AI가 바꿀 우리의 교실",
-                category: "IT / 과학",
-                summary: "생성형 AI의 도입이 고등학교 교육 현장에 가져온 변화와 미래 직업 세계에 대한 학생들의 시각을 분석합니다.",
-                content: "최근 학교 현장에서 생성형 AI의 활용이 빠르게 증가하고 있습니다. 한울 취재팀 조사에 따르면 전교생의 68%가 과제 및 주제 탐구 시 AI 도구를 활용해 본 경험이 있다고 답했습니다.\n\n하지만 AI 사용에 따른 윤리적 문제와 정보의 정확성 검증 역시 중요한 과제로 떠올랐습니다. 교내 정보 과목 선생님은 'AI는 도구일 뿐, 핵심은 질문하는 능력과 비판적 사고력'이라고 강조하셨습니다."
-            },
-            {
-                id: 2,
-                title: "우리 학교 축제의 역사와 비하인드 스토리",
-                category: "교내 문화",
-                summary: "10년째 이어져 온 학교 축제의 탄생 비화부터 올해 부스 준비 과정까지 취재했습니다.",
-                content: "매년 가을을 뜨겁게 달구는 우리 학교 축제! 그 시작은 2016년 소규모 학급 발표회였습니다.\n\n올해 축제는 역대 최대 규모인 24개 동아리가 참여하여 외부 방문객까지 함께 즐기는 지역 문화 행사로 발전했습니다. 축제 준비를 위해 밤낮으로 고생한 학생회와 동아리 부원들의 숨은 노력을 취재했습니다."
-            },
-            {
-                id: 3,
-                title: "환경을 바꾸는 작은 습관: 동아리 '줍깅' 프로젝트",
-                category: "사회 / 환경",
-                summary: "학교 주변 환경 정화 활동을 펼친 환경 동아리의 활동 모습과 유의미한 수치 성과를 전합니다.",
-                content: "환경 동아리와 한울이 함께 진행한 교내 및 인근 지역 '플로깅(줍깅)' 프로젝트 결과, 총 45kg의 플라스틱 및 쓰레기가 수거되었습니다.\n\n작은 행동이 모여 만드는 환경 변화의 가치를 되새기며, 일상 속 제로웨이스트 실천법 3가지를 소개합니다."
-            }
-        ];
-
-        // Feedbacks state
-        let feedbacks = JSON.parse(localStorage.getItem('hanul_feedbacks') || '[]');
-        
-        if (feedbacks.length === 0) {
-            feedbacks = [
-                { time: "10:15", affiliation: "재학생", gender: "남성", article: "인공지능과 미래 학교: AI가 바꿀 우리의 교실", rating: 5, review: "AI 관련 세특 준비할 때 정말 큰 도움이 되는 기사였습니다!", ticketId: "#HN-2026-A1" },
-                { time: "10:32", affiliation: "외부 학생", gender: "여성", article: "우리 학교 축제의 역사와 비하인드 스토리", rating: 5, review: "외부인인데 축제 오길 너무 잘했네요 기사 흥미로워요", ticketId: "#HN-2026-B2" },
-                { time: "11:05", affiliation: "학부모/주민", gender: "여성", article: "환경을 바꾸는 작은 습관: 동아리 '줍깅' 프로젝트", rating: 4, review: "학생들의 봉사 정신이 너무 예쁩니다.", ticketId: "#HN-2026-C3" },
-                { time: "11:20", affiliation: "재학생", gender: "남성", article: "인공지능과 미래 학교: AI가 바꿀 우리의 교실", rating: 5, review: "생소했던 기술 용어를 쉽게 설명해줘서 좋았어요.", ticketId: "#HN-2026-D4" }
-            ];
-            localStorage.setItem('hanul_feedbacks', JSON.stringify(feedbacks));
-        }
-
-        let articleChart = null;
-        let visitorChart = null;
-        let selectedArticleForEval = null;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderArticleCards();
-            populateArticleSelectOptions();
-            setupStarRating();
-            setupAffiliationOptions();
-            setupGenderOptions();
-            updateAnalyticsDashboard();
-        });
-
-        // Tab Switching Logic
-        function switchTab(tabId) {
-            ['formView', 'dashboardView'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                const btn = document.getElementById(`tab-${id}`);
-                btn.classList.remove('bg-hanul-600', 'text-white', 'shadow');
-                btn.classList.add('text-teal-100');
-            });
-
-            document.getElementById(tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-${tabId}`);
-            activeBtn.classList.remove('text-teal-100');
-            activeBtn.classList.add('bg-hanul-600', 'text-white', 'shadow');
-
-            if (tabId === 'dashboardView') {
-                updateAnalyticsDashboard();
-            }
-        }
-
-        function scrollToForm() {
-            switchTab('formView');
-            document.getElementById('feedbackForm').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function renderArticleCards() {
-            const container = document.getElementById('articleCardsContainer');
-            container.innerHTML = articles.map(art => `
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition space-y-2 flex flex-col justify-between">
-                    <div>
-                        <span class="text-[10px] bg-teal-50 text-teal-700 font-bold px-2 py-0.5 rounded-full border border-teal-200">${art.category}</span>
-                        <h4 class="font-bold text-xs text-slate-800 mt-1 line-clamp-1">${art.title}</h4>
-                        <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-snug">${art.summary}</p>
-                    </div>
-                    <button onclick="openArticleModal(${art.id})" class="text-xs text-hanul-600 hover:text-hanul-700 font-bold pt-2 flex items-center gap-1 border-t border-slate-100 mt-2">
-                        기사 더 읽기 <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function populateArticleSelectOptions() {
-            const select = document.getElementById('selectedArticle');
-            select.innerHTML = '<option value="" disabled selected>평가하실 기사를 선택해주세요</option>' +
-                articles.map(art => `<option value="${art.title}">${art.title}</option>`).join('');
-        }
-
-        function openArticleModal(id) {
-            const art = articles.find(a => a.id === id);
-            if (!art) return;
-            selectedArticleForEval = art;
-            document.getElementById('modalArticleCategory').innerText = art.category;
-            document.getElementById('modalArticleTitle').innerText = art.title;
-            document.getElementById('modalArticleContent').innerText = art.content;
-            document.getElementById('articleModal').classList.remove('hidden');
-        }
-
-        function closeArticleModal() {
-            document.getElementById('articleModal').classList.add('hidden');
-        }
-
-        function selectArticleFromModal() {
-            if (selectedArticleForEval) {
-                document.getElementById('selectedArticle').value = selectedArticleForEval.title;
-            }
-            closeArticleModal();
-            scrollToForm();
-        }
-
-        function setupStarRating() {
-            const stars = document.querySelectorAll('#starContainer i');
-            const ratingInput = document.getElementById('ratingValue');
-            const ratingText = document.getElementById('ratingText');
-
-            const textMap = {
-                1: "1점 (아쉬워요)",
-                2: "2점 (보통이에요)",
-                3: "3점 (좋아요)",
-                4: "4점 (매우 좋아요)",
-                5: "5점 (최고의 기사예요!)"
-            };
-
-            stars.forEach(star => {
-                star.addEventListener('click', () => {
-                    const rating = parseInt(star.getAttribute('data-rating'));
-                    ratingInput.value = rating;
-                    ratingText.innerText = textMap[rating];
-
-                    stars.forEach((s, idx) => {
-                        if (idx < rating) {
-                            s.classList.remove('text-slate-300');
-                            s.classList.add('text-amber-400');
-                        } else {
-                            s.classList.remove('text-amber-400');
-                            s.classList.add('text-slate-300');
-                        }
-                    });
-                });
-            });
-        }
-
-        function setupAffiliationOptions() {
-            const options = document.querySelectorAll('.affiliation-option');
-            options.forEach(opt => {
-                const input = opt.querySelector('input');
-                input.addEventListener('change', () => {
-                    options.forEach(o => o.classList.remove('border-hanul-600', 'bg-teal-50/50', 'ring-2', 'ring-hanul-500'));
-                    if (input.checked) {
-                        opt.classList.add('border-hanul-600', 'bg-teal-50/50', 'ring-2', 'ring-hanul-500');
-                    }
-                });
-            });
-        }
-
-        function setupGenderOptions() {
-            const options = document.querySelectorAll('.gender-option');
-            options.forEach(opt => {
-                const input = opt.querySelector('input');
-                input.addEventListener('change', () => {
-                    options.forEach(o => o.classList.remove('border-hanul-600', 'bg-teal-50/50', 'ring-2', 'ring-hanul-500'));
-                    if (input.checked) {
-                        opt.classList.add('border-hanul-600', 'bg-teal-50/50', 'ring-2', 'ring-hanul-500');
-                    }
-                });
-            });
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-
-            const affiliationInput = document.querySelector('input[name="affiliation"]:checked');
-            const genderInput = document.querySelector('input[name="gender"]:checked');
-            const article = document.getElementById('selectedArticle').value;
-            const rating = parseInt(document.getElementById('ratingValue').value);
-            const review = document.getElementById('oneLineReview').value.trim();
-
-            if (!affiliationInput) { alert('소속을 선택해 주세요!'); return; }
-            if (!genderInput) { alert('성별을 선택해 주세요!'); return; }
-            if (rating === 0) { alert('기사 평점을 별점으로 선택해 주세요!'); return; }
-
-            const affiliation = affiliationInput.value;
-            const gender = genderInput.value;
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            const randomCode = Math.floor(100 + Math.random() * 900);
-            const ticketId = `#HN-2026-${randomCode}`;
-
-            const newFeedback = {
-                time: timeStr,
-                affiliation,
-                gender,
-                article,
-                rating,
-                review,
-                oneLineReview: review,
-                comment: review,
-                feedback: review,
-                ticketId
-            };
-
-            feedbacks.unshift(newFeedback);
-            localStorage.setItem('hanul_feedbacks', JSON.stringify(feedbacks));
-
-            const webhookUrl = "https://script.google.com/macros/s/AKfycbzw9VM7nFSoZmMBFgPe6tWXjMt58GASJJ52rpDk9UpfFkJM8VWYdkQaHCr4uY2SRNm1Kw/exec";
-            if (webhookUrl) {
-                try {
-                    // 구글 스크립트 작성 방식(e.parameter vs e.postData.contents) 호환성을 위해 URL 쿼리와 Body 모두로 전송
-                    const queryParams = new URLSearchParams({
-                        time: timeStr,
-                        affiliation: affiliation,
-                        gender: gender,
-                        article: article,
-                        rating: String(rating),
-                        review: review,
-                        oneLineReview: review,
-                        comment: review,
-                        feedback: review,
-                        ticketId: ticketId
-                    });
-
-                    fetch(`${webhookUrl}?${queryParams.toString()}`, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify(newFeedback)
-                    });
-                } catch (err) {
-                    console.log('Google Sheets POST request sent.');
-                }
-            }
-
-            document.getElementById('modalTicketCode').innerText = ticketId;
-            document.getElementById('modalAffiliation').innerText = `소속: ${affiliation}`;
-            document.getElementById('modalGender').innerText = `성별: ${gender}`;
-            document.getElementById('ticketModal').classList.remove('hidden');
-
-            confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-
-            document.getElementById('feedbackForm').reset();
-            document.getElementById('ratingValue').value = "0";
-            document.getElementById('ratingText').innerText = "별점을 선택하세요 (5점 만점)";
-            document.querySelectorAll('#starContainer i').forEach(s => {
-                s.classList.remove('text-amber-400');
-                s.classList.add('text-slate-300');
-            });
-            document.querySelectorAll('.affiliation-option, .gender-option').forEach(o => {
-                o.classList.remove('border-hanul-600', 'bg-teal-50/50', 'ring-2', 'ring-hanul-500');
-            });
-
-            updateAnalyticsDashboard();
-        }
-
-        function closeTicketModal() {
-            document.getElementById('ticketModal').classList.add('hidden');
-        }
-
-        function updateAnalyticsDashboard() {
-            const totalCount = feedbacks.length;
-            document.getElementById('metricTotalCount').innerText = totalCount;
-
-            if (totalCount === 0) return;
-
-            const sumRating = feedbacks.reduce((acc, f) => acc + f.rating, 0);
-            const avgRating = (sumRating / totalCount).toFixed(1);
-            document.getElementById('metricAvgRating').innerText = `${avgRating} ★`;
-
-            const externalCount = feedbacks.filter(f => f.affiliation !== '재학생').length;
-            const externalRatio = Math.round((externalCount / totalCount) * 100);
-            document.getElementById('metricExternalRatio').innerText = `${externalRatio}%`;
-
-            const articleCounts = {};
-            feedbacks.forEach(f => {
-                articleCounts[f.article] = (articleCounts[f.article] || 0) + 1;
-            });
-
-            let topArticle = "-";
-            let maxC = 0;
-            for (let art in articleCounts) {
-                if (articleCounts[art] > maxC) {
-                    maxC = articleCounts[art];
-                    topArticle = art;
-                }
-            }
-            document.getElementById('metricTopArticle').innerText = topArticle;
-
-            // Render Table
-            const tableBody = document.getElementById('feedbackTableBody');
-            tableBody.innerHTML = feedbacks.map(f => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-mono text-slate-400">${f.time}</td>
-                    <td class="p-2.5">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${getAffiliationBadgeClass(f.affiliation)}">
-                            ${f.affiliation}
-                        </span>
-                    </td>
-                    <td class="p-2.5 font-semibold text-slate-800">${f.gender}</td>
-                    <td class="p-2.5 text-slate-700 max-w-xs truncate">${f.article}</td>
-                    <td class="p-2.5 font-bold text-amber-500">★ ${f.rating}</td>
-                    <td class="p-2.5 text-slate-600 max-w-md truncate">${f.review}</td>
-                </tr>
-            `).join('');
-
-            renderCharts(articleCounts);
-        }
-
-        function getAffiliationBadgeClass(aff) {
-            switch(aff) {
-                case '재학생': return 'bg-teal-100 text-teal-800';
-                case '외부 학생': return 'bg-blue-100 text-blue-800';
-                case '학부모/주민': return 'bg-amber-100 text-amber-800';
-                case '교직원': return 'bg-purple-100 text-purple-800';
-                default: return 'bg-slate-100 text-slate-800';
-            }
-        }
-
-        function renderCharts(articleCounts) {
-            const ctx1 = document.getElementById('articleChart').getContext('2d');
-            const ctx2 = document.getElementById('visitorChart').getContext('2d');
-
-            if (articleChart) articleChart.destroy();
-            if (visitorChart) visitorChart.destroy();
-
-            const articleLabels = articles.map(a => a.title.slice(0, 10) + '...');
-            const articleData = articles.map(a => articleCounts[a.title] || 0);
-
-            articleChart = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: articleLabels,
-                    datasets: [{
-                        label: '응답 수',
-                        data: articleData,
-                        backgroundColor: '#14b8a6',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
-            });
-
-            const affCounts = { '재학생': 0, '외부 학생': 0, '학부모/주민': 0, '교직원': 0 };
-            feedbacks.forEach(f => {
-                if (affCounts[f.affiliation] !== undefined) affCounts[f.affiliation]++;
-            });
-
-            visitorChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(affCounts),
-                    datasets: [{
-                        data: Object.values(affCounts),
-                        backgroundColor: ['#0d9488', '#3b82f6', '#f59e0b', '#8b5cf6']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
-                }
-            });
-        }
-
-        // Export to CSV
-        function exportToCSV() {
-            if (feedbacks.length === 0) {
-                alert('다운로드할 데이터가 없습니다.');
-                return;
-            }
-
-            let csv = "\uFEFF시간,소속,성별,선택기사,평점,한줄평,티켓코드\n";
-            feedbacks.forEach(f => {
-                csv += `"${f.time}","${f.affiliation}","${f.gender}","${f.article}",${f.rating},"${f.review.replace(/"/g, '""')}","${f.ticketId}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `한울_신문부스_피드백_데이터_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Generate Life-record (생기부) text helper
-        function generateLifeRecordSummary() {
-            const total = feedbacks.length;
-            const extCount = feedbacks.filter(f => f.affiliation !== '재학생').length;
-            const extRatio = Math.round((extCount / (total || 1)) * 100);
-
-            const text = `[축제 독자 피드백 데이터 분석 성과 요약]\n총 ${total}명의 축제 방문객이 참여하였으며, 재학생 외 외부 방문객 비율은 ${extRatio}%로 집계됨. 데이터 수집 자동화 및 시각화 도구를 직접 개발·구현하여 축제 후 독자 피드백 데이터를 정량적으로 분석하고 차기 신문 편집 방향성에 기여함.`;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert('생기부용 요약 문구가 클립보드에 복사되었습니다!\n\n' + text);
-            }).catch(() => {
-                alert(text);
-            });
-        }
-    </script>
+  <dialog id="articleDialog" class="dialog article-dialog" aria-labelledby="articleDialogTitle"><div class="dialog-top"><span id="articleCategory" class="pill"></span><button class="icon-button close-dialog" type="button" aria-label="기사 닫기">×</button></div><h2 id="articleDialogTitle"></h2><div id="articleBody" class="article-body"></div><a id="articleSource" class="text-link" target="_blank" rel="noopener noreferrer" hidden>패들렛 원문 / 첨부 자료 보기 ↗</a><button id="evaluateArticle" type="button" class="button primary wide">이 기사 평가하기 →</button></dialog>
+  <dialog id="ticketDialog" class="dialog ticket-dialog" aria-labelledby="ticketTitle"><button type="button" class="icon-button close-dialog corner-close" aria-label="제출 확인 닫기">×</button><div class="ticket-symbol" aria-hidden="true">✧</div><span class="eyebrow">THANK YOU FOR YOUR VOICE</span><h2 id="ticketTitle">당신의 한 줄이<br>한울에 도착했어요.</h2><p class="muted">구글 시트에 안전하게 저장되었습니다.<br>아래 번호를 부스 도우미에게 보여주세요.</p><div class="ticket-code"><span class="eyebrow">제출 확인 번호</span><strong id="ticketCode"></strong></div><p class="tiny muted">확인 화면을 캡처해 두시면 편리합니다.</p><button type="button" class="button primary wide close-dialog">확인했어요</button></dialog>
+  <dialog id="adminDialog" class="dialog admin-dialog" aria-labelledby="adminTitle"><div class="dialog-top"><div><span class="eyebrow">HANUL EDITOR'S ROOM</span><h2 id="adminTitle">관리자 공간</h2></div><button type="button" class="icon-button close-dialog" aria-label="관리자 공간 닫기">×</button></div>
+    <form id="loginForm"><p class="muted">기사 목록을 관리하려면 로그인해 주세요.</p><div class="field"><label for="adminPassword">관리자 비밀번호</label><input id="adminPassword" type="password" autocomplete="current-password" required maxlength="200"></div><button class="button primary wide" type="submit">관리자 로그인 →</button></form>
+    <section id="adminWorkspace" hidden><div class="admin-session"><span class="pill">관리자로 접속 중</span><button id="adminLogout" class="text-link" type="button">로그아웃</button></div><p id="adminConnections" class="tiny muted"></p><form id="padletForm"><div class="field"><label for="padletBoard">‘2026 한울’ 패들렛 주소 / API ID</label><input id="padletBoard" type="text" placeholder="https://padlet.com/… 또는 API ID" required maxlength="300"><span class="tiny muted">패들렛 우측 상단 ⋯ → Developer info에서 API ID를 확인할 수 있습니다.</span></div><button id="loadPadlet" class="button secondary" type="submit">섹션과 기사 불러오기 ↗</button></form><div id="selectionWorkspace" hidden><div class="selection-heading"><h3 id="boardTitle">2026 한울</h3><span id="selectionCount" class="tiny muted"></span></div><p class="tiny muted">섹션을 통째로 선택하거나 개별 기사를 골라 주세요. 게시하면 모든 방문자에게 동일하게 표시됩니다.</p><div id="sectionChoices"></div><button id="publishArticles" type="button" class="button primary wide">선택한 기사 게시하기 →</button></div><p id="publishedInfo" class="tiny muted"></p></section>
+    <p id="adminStatus" class="status" role="status" aria-live="polite"></p>
+  </dialog>
 </body>
 </html>
